@@ -52,22 +52,37 @@ public class SongDatabase {
         SQLiteDatabase db = databaseOpenHelper.getWritableDatabase();
         db.beginTransaction();
 
-        for (HashMap<String, String> song : songs) {
-            databaseOpenHelper.addSong(song.get("id"), song.get("title"), song.get("artist"), song.get("cdtype"), Integer.parseInt(song.get("list")));
+        if (songs.size() > 0) {
+            // Clear the table first.
+            databaseOpenHelper.clearSongs();
+
+            // Add the new song list.
+            for (HashMap<String, String> song : songs) {
+                databaseOpenHelper.addSong(song.get("id"), song.get("title"), song.get("artist"), song.get("cdtype"), Integer.parseInt(song.get("list")));
+            }
         }
 
         db.setTransactionSuccessful();
         db.endTransaction();
     }
 
-    public Cursor getSongMatches(String query, String[] columns) {
+    public Cursor getSongMatches(SongQuery query) {
         //String selection = COL_TITLE + " LIKE ?";
         //String[] selectionArgs = new String[] {query+"*"};
 
         SQLiteDatabase database = databaseOpenHelper.getReadableDatabase();
         String selectQuery = "SELECT * FROM " + TABLE_NAME;
+        if (query.getArtist() != null) {
+            selectQuery += " WHERE Artist = '" + query.getArtist() + "'";
+        }
         return database.rawQuery(selectQuery, null);
         //return query(selection, selectionArgs, columns);
+    }
+
+    public Cursor getArtistMatches(SongQuery query) {
+        SQLiteDatabase database = databaseOpenHelper.getReadableDatabase();
+        String selectQuery = "SELECT Artist, COUNT(*) AS SongCount FROM " + TABLE_NAME + " GROUP BY Artist";
+        return database.rawQuery(selectQuery, null);
     }
 
     private Cursor query(String selection, String[] selectionArgs, String[] columns) {
@@ -130,6 +145,41 @@ public class SongDatabase {
 
             SQLiteDatabase database = getWritableDatabase();
             return database.insert(TABLE_NAME, null, initialValues);
+        }
+
+        public void clearSongs() {
+            SQLiteDatabase database = getWritableDatabase();
+            database.delete(TABLE_NAME, null, null);
+        }
+    }
+
+    public static class SongQuery {
+        private String text = null;
+        private int list = 0;
+        private String artist = null;
+
+        public String getSearchText() {
+            return this.text;
+        }
+
+        public void setSearchText(String searchText) {
+            this.text = searchText;
+        }
+
+        public int getList() {
+            return this.list;
+        }
+
+        public void setList(int list) {
+            this.list = list;
+        }
+
+        public String getArtist() {
+            return this.artist;
+        }
+
+        public void setArtist(String artist) {
+            this.artist = artist;
         }
     }
 }

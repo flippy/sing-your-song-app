@@ -1,41 +1,43 @@
 package dev.flippy.singyoursong;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
-import androidx.fragment.app.Fragment;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class TabFragment1 extends Fragment {
-
-    private String TAG = TabFragment1.class.getSimpleName();
-    private ProgressDialog pDialog;
+public class ArtistDetailView extends AppCompatActivity {
     private ListView lv;
-    private Activity activity;
-
+    private String artist;
     ArrayList<HashMap<String, String>> songList;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.list_detail);
 
-        activity = (MainActivity) getActivity();
-        View view = inflater.inflate(R.layout.tab_fragment_1, container, false);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         songList = new ArrayList<>();
-        Log.e(TAG, "Tab Fragment 1 onCreateView");
+
+        this.artist = getIntent().getStringExtra("artist");
+
+        SongDatabase.SongQuery query = new SongDatabase.SongQuery();
+        query.setArtist(this.artist);
 
         // Load the songs.
-        Cursor songsCursor = MainActivity.getSongDatabase().getSongMatches(new SongDatabase.SongQuery());
+        Cursor songsCursor = MainActivity.getSongDatabase().getSongMatches(query);
         if (songsCursor != null) {
             try {
                 while (songsCursor.moveToNext()) {
@@ -57,17 +59,32 @@ public class TabFragment1 extends Fragment {
                 songsCursor.close();
             }
         }
-        Log.e(TAG, "Songs loaded");
 
-        lv = (ListView) view.findViewById(R.id.list);
+        lv = (ListView) findViewById(R.id.list);
         ListAdapter adapter = new SimpleAdapter(
-                activity, songList,
+                this, songList,
                 R.layout.list_item_song, new String[]{"title", "artist",
                 "id"}, new int[]{R.id.title,
                 R.id.artist, R.id.id});
 
         lv.setAdapter(adapter);
+    }
 
-        return view;
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_settings, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_back) {
+            setResult(Activity.RESULT_OK);
+            finish();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }

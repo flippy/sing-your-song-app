@@ -24,7 +24,6 @@ import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
     private String TAG = MainActivity.class.getSimpleName();
-    private ProgressDialog pDialog;
     private static SongDatabase songDatabase;
     private ViewPager viewPager;
 
@@ -39,8 +38,8 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
-        tabLayout.addTab(tabLayout.newTab().setText("Tab 1"));
-        tabLayout.addTab(tabLayout.newTab().setText("Tab 2"));
+        tabLayout.addTab(tabLayout.newTab().setText("By Song Title"));
+        tabLayout.addTab(tabLayout.newTab().setText("By Artist"));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         viewPager = (ViewPager) findViewById(R.id.pager);
@@ -68,126 +67,19 @@ public class MainActivity extends AppCompatActivity {
         // Fetch songs if not yet done.
         if (songDatabase.isEmpty()) {
             Log.e(TAG, "Song database empty --> fetching data online.");
-            new MainActivity.FetchSongData().execute();
-        }
-    }
 
-    public static SongDatabase getSongDatabase() {
-        return songDatabase;
-    }
-
-    /**
-     * Async task class to get json by making HTTP call
-     */
-    private class FetchSongData extends AsyncTask<Void, Void, Void> {
-        // URL to get contacts JSON
-        private String url = "https://flippy.dev/sing-your-song-app/sys-songlist-firstpart.json";
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            // Showing progress dialog
-            pDialog = new ProgressDialog(MainActivity.this);
-            pDialog.setMessage("Please wait...");
-            pDialog.setCancelable(false);
-            pDialog.show();
-
-        }
-
-        @Override
-        protected Void doInBackground(Void... arg0) {
-            HttpHandler sh = new HttpHandler();
-
-            // Making a request to url and getting response
-            String jsonStr = sh.makeServiceCall(url);
-
-            Log.e(TAG, "Response from url: " + jsonStr);
-
-            if (jsonStr != null) {
-                try {
-                    JSONObject jsonObj = new JSONObject(jsonStr);
-
-                    // Getting JSON Array node
-                    JSONArray contacts = jsonObj.getJSONArray("songs");
-
-                    ArrayList<HashMap<String, String>> songList = new ArrayList<>();
-
-                    // looping through All Contacts
-                    for (int i = 0; i < contacts.length(); i++) {
-                        JSONObject c = contacts.getJSONObject(i);
-
-                        String id = c.getString("number");
-                        String artist = c.getString("artist");
-                        String title = c.getString("title");
-                        String cdtype = c.getString("cdtype");
-                        String list = c.getString("list");
-
-                        // Phone node is JSON Object
-                        //JSONObject phone = c.getJSONObject("phone");
-                        //String mobile = c.getString("list");
-
-                        // tmp hash map for single contact
-                        HashMap<String, String> song = new HashMap<>();
-
-                        // adding each child node to HashMap key => value
-                        song.put("id", id);
-                        song.put("title", title);
-                        song.put("artist", artist);
-                        song.put("cdtype", cdtype);
-                        song.put("list", list);
-
-                        // adding contact to contact list
-                        songList.add(song);
-                    }
-
-                    // Add the songs to the database.
-                    songDatabase.setSongs(songList);
-
-                } catch (final JSONException e) {
-                    Log.e(TAG, "Json parsing error: " + e.getMessage());
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getApplicationContext(),
-                                    "Json parsing error: " + e.getMessage(),
-                                    Toast.LENGTH_LONG)
-                                    .show();
-                        }
-                    });
-
+            FetchSongData.TaskListener listener = new FetchSongData.TaskListener() {
+                @Override
+                public void onFinished() {
+                    Log.e(TAG, "notifying the view Pager adapter about the change.");
+                    viewPager.getAdapter().notifyDataSetChanged();
+                    //((BaseAdapter) lv.getAdapter()).notifyDataSetChanged();
                 }
-            } else {
-                Log.e(TAG, "Couldn't get json from server.");
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getApplicationContext(),
-                                "Couldn't get json from server. Check LogCat for possible errors!",
-                                Toast.LENGTH_LONG)
-                                .show();
-                    }
-                });
+            };
 
-            }
-
-            return null;
+            new FetchSongData(this, MainActivity.this, listener).execute();
+            //fetchSongData();
         }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            super.onPostExecute(result);
-            // Dismiss the progress dialog
-            if (pDialog.isShowing())
-                pDialog.dismiss();
-            /**
-             * Updating parsed JSON data into ListView
-             * */
-
-            Log.e(TAG, "notifying the view Pager adapter about the change.");
-            viewPager.getAdapter().notifyDataSetChanged();
-            //((BaseAdapter) lv.getAdapter()).notifyDataSetChanged();
-        }
-
     }
 
     @Override
@@ -201,12 +93,20 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
         if (id == R.id.action_settings) {
             Intent settings_activity = new Intent(this,SettingsActivity.class);
-            startActivity(settings_activity);
+            startActivityForResult(settings_activity, 1);
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.e(TAG, "Settings closed.");
+        viewPager.getAdapter().notifyDataSetChanged();
+    }
 
+    public static SongDatabase getSongDatabase() {
+        return songDatabase;
+    }
 }

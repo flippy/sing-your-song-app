@@ -17,6 +17,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".SettingsActivity"></activity>
+        <activity android:name=".ArtistDetailView" />
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />
