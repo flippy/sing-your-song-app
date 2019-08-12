@@ -13,6 +13,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  * Async task class to get json by making HTTP call
@@ -63,16 +64,13 @@ public class FetchSongData extends AsyncTask<Void, Void, Void> {
 
         if (jsonStr != null) {
             try {
+                // Build the songs list.
                 JSONObject jsonObj = new JSONObject(jsonStr);
-
-                // Getting JSON Array node
-                JSONArray contacts = jsonObj.getJSONArray("songs");
-
                 ArrayList<HashMap<String, String>> songList = new ArrayList<>();
 
-                // looping through All Contacts
-                for (int i = 0; i < contacts.length(); i++) {
-                    JSONObject c = contacts.getJSONObject(i);
+                JSONArray songs = jsonObj.getJSONArray("songs");
+                for (int i = 0; i < songs.length(); i++) {
+                    JSONObject c = songs.getJSONObject(i);
 
                     String id = c.getString("number");
                     String artist = c.getString("artist");
@@ -80,7 +78,6 @@ public class FetchSongData extends AsyncTask<Void, Void, Void> {
                     String cdtype = c.getString("cdtype");
                     String list = c.getString("list");
 
-                    // tmp hash map for single contact
                     HashMap<String, String> song = new HashMap<>();
 
                     // adding each child node to HashMap key => value
@@ -90,13 +87,24 @@ public class FetchSongData extends AsyncTask<Void, Void, Void> {
                     song.put("cdtype", cdtype);
                     song.put("list", list);
 
-                    // adding contact to contact list
                     songList.add(song);
                 }
 
                 // Add the songs to the database.
                 SongDatabase songDatabase = MainActivity.getSongDatabase();
                 songDatabase.setSongs(songList);
+
+                // Build the lists list.
+                HashMap<String, String> listsList = new HashMap<String, String>();
+
+                JSONObject lists = jsonObj.getJSONObject("lists");
+                for(Iterator<String> iter = lists.keys(); iter.hasNext();) {
+                    String list_key = iter.next();
+                    listsList.put(list_key, lists.getString(list_key));
+                }
+
+                // Add the lists to the database.
+                songDatabase.setLists(listsList);
 
             } catch (final JSONException e) {
                 Log.e(TAG, "Json parsing error: " + e.getMessage());

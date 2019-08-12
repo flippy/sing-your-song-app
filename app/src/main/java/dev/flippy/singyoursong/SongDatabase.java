@@ -21,7 +21,8 @@ public class SongDatabase {
     public static final String COL_LIST = "List";
 
     private static final String DATABASE_NAME = "SingYourSong";
-    private static final String TABLE_NAME = "Songs";
+    private static final String TABLE_NAME_SONGS = "Songs";
+    private static final String TABLE_NAME_LISTS = "Lists";
     private static final int DATABASE_VERSION = 1;
 
     private final DatabaseOpenHelper databaseOpenHelper;
@@ -39,7 +40,7 @@ public class SongDatabase {
 
     public boolean isEmpty() {
         SQLiteDatabase db = databaseOpenHelper.getWritableDatabase();
-        String count = "SELECT count(*) FROM " + TABLE_NAME;
+        String count = "SELECT count(*) FROM " + TABLE_NAME_SONGS;
         Cursor mcursor = db.rawQuery(count, null);
         mcursor.moveToFirst();
         int icount = mcursor.getInt(0);
@@ -48,7 +49,6 @@ public class SongDatabase {
     }
 
     public void setSongs(ArrayList<HashMap<String, String>> songs) {
-        Log.e(TAG, "setSongs triggered!");
         SQLiteDatabase db = databaseOpenHelper.getWritableDatabase();
         db.beginTransaction();
 
@@ -56,7 +56,7 @@ public class SongDatabase {
             // Clear the table first.
             databaseOpenHelper.clearSongs();
 
-            // Add the new song list.
+            // Add the new song set.
             for (HashMap<String, String> song : songs) {
                 databaseOpenHelper.addSong(song.get("id"), song.get("title"), song.get("artist"), song.get("cdtype"), Integer.parseInt(song.get("list")));
             }
@@ -71,48 +71,47 @@ public class SongDatabase {
         //String[] selectionArgs = new String[] {query+"*"};
 
         SQLiteDatabase database = databaseOpenHelper.getReadableDatabase();
-        String selectQuery = "SELECT * FROM " + TABLE_NAME;
+        String selectQuery = "SELECT * FROM " + TABLE_NAME_SONGS;
         if (query.getArtist() != null) {
             selectQuery += " WHERE Artist = '" + query.getArtist() + "'";
         }
         return database.rawQuery(selectQuery, null);
-        //return query(selection, selectionArgs, columns);
     }
 
     public Cursor getArtistMatches(SongQuery query) {
         SQLiteDatabase database = databaseOpenHelper.getReadableDatabase();
-        String selectQuery = "SELECT Artist, COUNT(*) AS SongCount FROM " + TABLE_NAME + " GROUP BY Artist";
+        String selectQuery = "SELECT Artist, COUNT(*) AS SongCount FROM " + TABLE_NAME_SONGS + " GROUP BY Artist";
         return database.rawQuery(selectQuery, null);
     }
 
-    private Cursor query(String selection, String[] selectionArgs, String[] columns) {
-        SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
-        builder.setTables(TABLE_NAME);
+    public void setLists(HashMap<String, String> lists) {
+        SQLiteDatabase db = databaseOpenHelper.getWritableDatabase();
+        db.beginTransaction();
 
-        Cursor cursor = builder.query(databaseOpenHelper.getReadableDatabase(),
-                columns, selection, selectionArgs, null, null, null);
+        if (lists.size() > 0) {
+            // Clear the table first.
+            databaseOpenHelper.clearLists();
 
-        /*if (cursor == null) {
-            return null;
-        } else if (!cursor.moveToFirst()) {
-            cursor.close();
-            return null;
-        }*/
-        return cursor;
+            // Add the new list.
+            for (HashMap.Entry<String, String> entry : lists.entrySet()) {
+                databaseOpenHelper.addList(Integer.parseInt(entry.getKey()), entry.getValue());
+            }
+        }
+
+        db.setTransactionSuccessful();
+        db.endTransaction();
+    }
+
+    public Cursor getLists() {
+        SQLiteDatabase database = databaseOpenHelper.getReadableDatabase();
+        String selectQuery = "SELECT * FROM " + TABLE_NAME_LISTS;
+        return database.rawQuery(selectQuery, null);
     }
 
     private static class DatabaseOpenHelper extends SQLiteOpenHelper {
 
         private final Context helperContext;
         private SQLiteDatabase mDatabase;
-
-        private static final String TABLE_CREATE =
-                "CREATE  TABLE " + TABLE_NAME + " (" +
-                        COL_ID + " TEXT, " +
-                        COL_TITLE + " TEXT, " +
-                        COL_ARTIST + " TEXT, " +
-                        COL_CDTYPE + " TEXT, " +
-                        COL_LIST + " INTEGER)";
 
         DatabaseOpenHelper(Context context) {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -121,17 +120,25 @@ public class SongDatabase {
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-            Log.e(TAG, "before create");
             mDatabase = db;
-            mDatabase.execSQL(TABLE_CREATE);
-            Log.e(TAG, "after create");
+            mDatabase.execSQL("CREATE  TABLE " + TABLE_NAME_SONGS + " (" +
+                    COL_ID + " TEXT, " +
+                    COL_TITLE + " TEXT, " +
+                    COL_ARTIST + " TEXT, " +
+                    COL_CDTYPE + " TEXT, " +
+                    COL_LIST + " INTEGER)");
+
+            mDatabase.execSQL("CREATE  TABLE " + TABLE_NAME_LISTS + " (" +
+                    COL_ID + " INTEGER, " +
+                    COL_TITLE + " TEXT)");
         }
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             Log.w(TAG, "Upgrading database from version " + oldVersion + " to "
                     + newVersion + ", which will destroy all old data");
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_SONGS);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_LISTS);
             onCreate(db);
         }
 
@@ -144,12 +151,26 @@ public class SongDatabase {
             initialValues.put(COL_LIST, list);
 
             SQLiteDatabase database = getWritableDatabase();
-            return database.insert(TABLE_NAME, null, initialValues);
+            return database.insert(TABLE_NAME_SONGS, null, initialValues);
+        }
+
+        public long addList(Integer id, String title) {
+            ContentValues initialValues = new ContentValues();
+            initialValues.put(COL_ID, id);
+            initialValues.put(COL_TITLE, title);
+
+            SQLiteDatabase database = getWritableDatabase();
+            return database.insert(TABLE_NAME_LISTS, null, initialValues);
         }
 
         public void clearSongs() {
             SQLiteDatabase database = getWritableDatabase();
-            database.delete(TABLE_NAME, null, null);
+            database.delete(TABLE_NAME_SONGS, null, null);
+        }
+
+        public void clearLists() {
+            SQLiteDatabase database = getWritableDatabase();
+            database.delete(TABLE_NAME_LISTS, null, null);
         }
     }
 

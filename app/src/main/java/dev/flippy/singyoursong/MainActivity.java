@@ -6,11 +6,16 @@ import androidx.viewpager.widget.ViewPager;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.material.tabs.TabLayout;
@@ -61,6 +66,38 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
 
+            }
+        });
+
+        // Add the list selection.
+        Spinner dropdown = findViewById(R.id.listDropdown);
+        // Load the songs.
+        Cursor listsCursor = MainActivity.getSongDatabase().getLists();
+        ArrayList<String> lists = new ArrayList<>();
+        lists.add("All Songs");
+        if (listsCursor != null) {
+            try {
+                while (listsCursor.moveToNext()) {
+                    int index = listsCursor.getColumnIndexOrThrow("Title");
+                    lists.add(listsCursor.getString(index));
+                }
+            } finally {
+                listsCursor.close();
+            }
+        }
+        Log.e(TAG, "Songs loaded");
+        ArrayAdapter<String> dropdown_adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, lists);
+        dropdown.setAdapter(dropdown_adapter);
+
+        dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Log.e(TAG, "List " + position + " selected.");
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // TODO Auto-generated method stub
             }
         });
 
