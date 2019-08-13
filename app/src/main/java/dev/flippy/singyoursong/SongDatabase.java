@@ -6,10 +6,12 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class SongDatabase {
     private static final String TAG = "SongDatabase";
@@ -67,21 +69,59 @@ public class SongDatabase {
     }
 
     public Cursor getSongMatches(SongQuery query) {
-        //String selection = COL_TITLE + " LIKE ?";
-        //String[] selectionArgs = new String[] {query+"*"};
-
         SQLiteDatabase database = databaseOpenHelper.getReadableDatabase();
-        String selectQuery = "SELECT * FROM " + TABLE_NAME_SONGS;
+        List<String> whereClauses = new ArrayList<>();
+        List<String> whereParameters = new ArrayList<>();
         if (query.getArtist() != null) {
-            selectQuery += " WHERE Artist = '" + query.getArtist() + "'";
+            whereClauses.add("Artist = ?");
+            whereParameters.add(query.getArtist());
         }
-        return database.rawQuery(selectQuery, null);
+        if (query.getList() != 0) {
+            whereClauses.add("List = ?");
+            whereParameters.add(Integer.toString(query.getList()));
+        }
+        if (query.getSearchText() != null && query.getSearchText().length() > 0) {
+            String searchQueryString = "%" + query.getSearchText() + "%";
+            whereClauses.add("(Title LIKE ? OR Artist LIKE ?)");
+            whereParameters.add(searchQueryString);
+            whereParameters.add(searchQueryString);
+        }
+
+        return database.query(
+                TABLE_NAME_SONGS /* table */,
+                new String[] { "*" } /* columns */,
+                TextUtils.join(" AND ",whereClauses) /* where or selection */,
+                whereParameters.toArray(new String[0]) /* selectionArgs i.e. value to replace ? */,
+                null /* groupBy */,
+                null /* having */,
+                "Title" /* orderBy */
+        );
     }
 
     public Cursor getArtistMatches(SongQuery query) {
         SQLiteDatabase database = databaseOpenHelper.getReadableDatabase();
-        String selectQuery = "SELECT Artist, COUNT(*) AS SongCount FROM " + TABLE_NAME_SONGS + " GROUP BY Artist";
-        return database.rawQuery(selectQuery, null);
+        List<String> whereClauses = new ArrayList<>();
+        List<String> whereParameters = new ArrayList<>();
+        if (query.getList() != 0) {
+            whereClauses.add("List = ?");
+            whereParameters.add(Integer.toString(query.getList()));
+        }
+        if (query.getSearchText() != null && query.getSearchText().length() > 0) {
+            String searchQueryString = "%" + query.getSearchText() + "%";
+            whereClauses.add("(Title LIKE ? OR Artist LIKE ?)");
+            whereParameters.add(searchQueryString);
+            whereParameters.add(searchQueryString);
+        }
+
+        return database.query(
+                TABLE_NAME_SONGS /* table */,
+                new String[] { "Artist", "COUNT(*) AS SongCount" } /* columns */,
+                TextUtils.join(" AND ",whereClauses) /* where or selection */,
+                whereParameters.toArray(new String[0]) /* selectionArgs i.e. value to replace ? */,
+                "Artist" /* groupBy */,
+                null /* having */,
+                "Artist" /* orderBy */
+        );
     }
 
     public void setLists(HashMap<String, String> lists) {

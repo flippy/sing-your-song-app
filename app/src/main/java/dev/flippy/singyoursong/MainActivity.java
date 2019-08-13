@@ -9,12 +9,15 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -31,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
     private String TAG = MainActivity.class.getSimpleName();
     private static SongDatabase songDatabase;
     private ViewPager viewPager;
+    private int selectedList;
+    private String searchText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
         Cursor listsCursor = MainActivity.getSongDatabase().getLists();
         ArrayList<String> lists = new ArrayList<>();
         lists.add("All Songs");
+        selectedList = 0;
         if (listsCursor != null) {
             try {
                 while (listsCursor.moveToNext()) {
@@ -92,12 +98,40 @@ public class MainActivity extends AppCompatActivity {
         dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Log.e(TAG, "List " + position + " selected.");
+                // If the list really changed update the results.
+                if (position != selectedList) {
+                    selectedList = position;
+                    viewPager.getAdapter().notifyDataSetChanged();
+                }
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
                 // TODO Auto-generated method stub
+            }
+        });
+
+        // Add the list selection.
+        searchText = "";
+        EditText search_box = findViewById(R.id.searchBox);
+        search_box.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start,
+                                          int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String search_string = s.toString();
+                // If the search text really changed update the results.
+                if (!search_string.equals(searchText)) {
+                    searchText = s.toString();
+                    viewPager.getAdapter().notifyDataSetChanged();
+                }
             }
         });
 
@@ -145,5 +179,13 @@ public class MainActivity extends AppCompatActivity {
 
     public static SongDatabase getSongDatabase() {
         return songDatabase;
+    }
+
+    public int getSelectedList() {
+        return selectedList;
+    }
+
+    public String getSearchText() {
+        return searchText;
     }
 }

@@ -22,7 +22,7 @@ public class TabFragment1 extends Fragment {
     private String TAG = TabFragment1.class.getSimpleName();
     private ProgressDialog pDialog;
     private ListView lv;
-    private Activity activity;
+    private MainActivity activity;
 
     ArrayList<HashMap<String, String>> songList;
 
@@ -35,7 +35,10 @@ public class TabFragment1 extends Fragment {
         Log.e(TAG, "Tab Fragment 1 onCreateView");
 
         // Load the songs.
-        Cursor songsCursor = MainActivity.getSongDatabase().getSongMatches(new SongDatabase.SongQuery());
+        SongDatabase.SongQuery query = new SongDatabase.SongQuery();
+        query.setList(activity.getSelectedList());
+        query.setSearchText(activity.getSearchText());
+        Cursor songsCursor = MainActivity.getSongDatabase().getSongMatches(query);
         if (songsCursor != null) {
             try {
                 while (songsCursor.moveToNext()) {

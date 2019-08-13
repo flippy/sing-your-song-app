@@ -24,7 +24,7 @@ public class ArtistDetailView extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.list_detail);
+        setContentView(R.layout.list_artist_detail);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -35,6 +35,8 @@ public class ArtistDetailView extends AppCompatActivity {
 
         SongDatabase.SongQuery query = new SongDatabase.SongQuery();
         query.setArtist(this.artist);
+        query.setList(getIntent().getIntExtra("list", 0));
+        query.setSearchText(getIntent().getStringExtra("searchText"));
 
         // Load the songs.
         Cursor songsCursor = MainActivity.getSongDatabase().getSongMatches(query);

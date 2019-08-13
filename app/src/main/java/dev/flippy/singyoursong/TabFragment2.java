@@ -25,7 +25,7 @@ public class TabFragment2 extends Fragment {
 
     private String TAG = TabFragment1.class.getSimpleName();
     private ListView lv;
-    private Activity activity;
+    private MainActivity activity;
 
     ArrayList<HashMap<String, String>> artistList;
 
@@ -37,8 +37,11 @@ public class TabFragment2 extends Fragment {
         artistList = new ArrayList<>();
         Log.e(TAG, "Tab Fragment 2 onCreateView");
 
-        // Load the songs.
-        Cursor artistCursor = MainActivity.getSongDatabase().getArtistMatches(new SongDatabase.SongQuery());
+        // Load the songs by artist.
+        SongDatabase.SongQuery query = new SongDatabase.SongQuery();
+        query.setList(activity.getSelectedList());
+        query.setSearchText(activity.getSearchText());
+        Cursor artistCursor = MainActivity.getSongDatabase().getArtistMatches(query);
         if (artistCursor != null) {
             try {
                 while (artistCursor.moveToNext()) {
@@ -77,6 +80,8 @@ public class TabFragment2 extends Fragment {
                 Log.e(TAG, artist_info.get("artist"));
                 Intent intent = new Intent(activity, ArtistDetailView.class);
                 intent.putExtra("artist", artist_info.get("artist"));
+                intent.putExtra("list", activity.getSelectedList());
+                intent.putExtra("searchText", activity.getSearchText());
                 startActivity(intent);
             }
         });
