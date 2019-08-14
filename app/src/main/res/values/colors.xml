@@ -3,4 +3,7 @@
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
+    <color name="colorTitle">#3498db</color>
+    <color name="colorArtist">#16a085</color>
+    <color name="colorSongID">#e74c3c</color>
 </resources>

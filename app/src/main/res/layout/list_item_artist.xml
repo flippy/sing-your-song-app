@@ -11,16 +11,18 @@
         android:layout_height="wrap_content"
         android:paddingBottom="2dip"
         android:paddingTop="6dip"
-        android:textColor="#3498db"
+        android:textColor="@color/colorArtist"
         android:textSize="16sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:text="Name of the artist" />
 
     <TextView
         android:id="@+id/count"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:paddingBottom="2dip"
-        android:textColor="#16a085"
-        android:textStyle="bold" />
+        android:textColor="@color/colorSongID"
+        android:textStyle="bold"
+        android:text="4 songs" />
 
 </LinearLayout>

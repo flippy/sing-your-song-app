@@ -82,7 +82,8 @@ public class SongDatabase {
         }
         if (query.getSearchText() != null && query.getSearchText().length() > 0) {
             String searchQueryString = "%" + query.getSearchText() + "%";
-            whereClauses.add("(Title LIKE ? OR Artist LIKE ?)");
+            whereClauses.add("(Title LIKE ? OR Artist LIKE ? OR ID LIKE ?)");
+            whereParameters.add(searchQueryString);
             whereParameters.add(searchQueryString);
             whereParameters.add(searchQueryString);
         }
@@ -108,7 +109,8 @@ public class SongDatabase {
         }
         if (query.getSearchText() != null && query.getSearchText().length() > 0) {
             String searchQueryString = "%" + query.getSearchText() + "%";
-            whereClauses.add("(Title LIKE ? OR Artist LIKE ?)");
+            whereClauses.add("(Title LIKE ? OR Artist LIKE ? OR ID LIKE ?)");
+            whereParameters.add(searchQueryString);
             whereParameters.add(searchQueryString);
             whereParameters.add(searchQueryString);
         }

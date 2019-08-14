@@ -25,7 +25,8 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_below="@+id/toolbar"
-        android:background="?attr/colorAccent">
+        android:background="#aaa"
+        android:elevation="6dp" >
 
         <EditText
             android:id="@+id/searchBox"

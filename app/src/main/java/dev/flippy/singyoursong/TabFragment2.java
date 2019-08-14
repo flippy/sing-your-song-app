@@ -66,9 +66,11 @@ public class TabFragment2 extends Fragment {
 
         lv = (ListView) view.findViewById(R.id.list);
         ListAdapter adapter = new SimpleAdapter(
-                activity, artistList,
-                R.layout.list_item_artist, new String[]{"artistText", "count"}, new int[]{R.id.artist,
-                R.id.count});
+                activity,
+                artistList,
+                R.layout.list_item_artist,
+                new String[]{"artistText", "count"},
+                new int[]{R.id.artist, R.id.count});
 
         lv.setAdapter(adapter);
 
