@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.database.sqlite.SQLiteQueryBuilder;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -32,13 +31,6 @@ public class SongDatabase {
     public SongDatabase(Context context) {
         databaseOpenHelper = new DatabaseOpenHelper(context);
     }
-
-    /*public Cursor getWordMatches(String query, String[] columns) {
-        String selection = COL_TITLE + " MATCH ?";
-        String[] selectionArgs = new String[] {query+"*"};
-
-        return query(selection, selectionArgs, columns);
-    }*/
 
     public boolean isEmpty() {
         SQLiteDatabase db = databaseOpenHelper.getWritableDatabase();
@@ -88,6 +80,9 @@ public class SongDatabase {
             whereParameters.add(searchQueryString);
         }
 
+        // Remove the weird empty from the list.
+        whereClauses.add("ID <> 'CD Nr.'");
+
         return database.query(
                 TABLE_NAME_SONGS /* table */,
                 new String[] { "*" } /* columns */,
@@ -103,6 +98,7 @@ public class SongDatabase {
         SQLiteDatabase database = databaseOpenHelper.getReadableDatabase();
         List<String> whereClauses = new ArrayList<>();
         List<String> whereParameters = new ArrayList<>();
+
         if (query.getList() != 0) {
             whereClauses.add("List = ?");
             whereParameters.add(Integer.toString(query.getList()));
@@ -114,6 +110,9 @@ public class SongDatabase {
             whereParameters.add(searchQueryString);
             whereParameters.add(searchQueryString);
         }
+
+        // Remove the weird empty from the list.
+        whereClauses.add("ID <> 'CD Nr.'");
 
         return database.query(
                 TABLE_NAME_SONGS /* table */,

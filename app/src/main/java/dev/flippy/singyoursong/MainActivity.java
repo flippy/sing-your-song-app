@@ -4,10 +4,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.viewpager.widget.ViewPager;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -19,16 +17,10 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import com.google.android.material.tabs.TabLayout;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
     private String TAG = MainActivity.class.getSimpleName();
@@ -91,7 +83,6 @@ public class MainActivity extends AppCompatActivity {
                 listsCursor.close();
             }
         }
-        Log.e(TAG, "Songs loaded");
         ArrayAdapter<String> dropdown_adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, lists);
         dropdown.setAdapter(dropdown_adapter);
 
@@ -142,14 +133,11 @@ public class MainActivity extends AppCompatActivity {
             FetchSongData.TaskListener listener = new FetchSongData.TaskListener() {
                 @Override
                 public void onFinished() {
-                    Log.e(TAG, "notifying the view Pager adapter about the change.");
                     viewPager.getAdapter().notifyDataSetChanged();
-                    //((BaseAdapter) lv.getAdapter()).notifyDataSetChanged();
                 }
             };
 
             new FetchSongData(this, MainActivity.this, listener).execute();
-            //fetchSongData();
         }
     }
 
@@ -173,7 +161,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.e(TAG, "Settings closed.");
         viewPager.getAdapter().notifyDataSetChanged();
     }
 

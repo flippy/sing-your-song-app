@@ -1,7 +1,5 @@
 package dev.flippy.singyoursong;
 
-import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -13,6 +11,7 @@ import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
@@ -35,7 +34,6 @@ public class TabFragment2 extends Fragment {
         activity = (MainActivity) getActivity();
         View view = inflater.inflate(R.layout.tab_fragment_2, container, false);
         artistList = new ArrayList<>();
-        Log.e(TAG, "Tab Fragment 2 onCreateView");
 
         // Load the songs by artist.
         SongDatabase.SongQuery query = new SongDatabase.SongQuery();
@@ -62,7 +60,6 @@ public class TabFragment2 extends Fragment {
                 artistCursor.close();
             }
         }
-        Log.e(TAG, "Artists loaded");
 
         lv = (ListView) view.findViewById(R.id.list);
         ListAdapter adapter = new SimpleAdapter(
@@ -71,15 +68,16 @@ public class TabFragment2 extends Fragment {
                 R.layout.list_item_artist,
                 new String[]{"artistText", "count"},
                 new int[]{R.id.artist, R.id.count});
-
         lv.setAdapter(adapter);
+
+        TextView emptyText = (TextView)view.findViewById(android.R.id.empty);
+        lv.setEmptyView(emptyText);
 
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position,
                                     long id) {
                 HashMap<String, String> artist_info = (HashMap<String, String>) parent.getItemAtPosition(position);
-                Log.e(TAG, artist_info.get("artist"));
                 Intent intent = new Intent(activity, ArtistDetailView.class);
                 intent.putExtra("artist", artist_info.get("artist"));
                 intent.putExtra("list", activity.getSelectedList());

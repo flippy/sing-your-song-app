@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Sing Your Song</string>
+    <string name="empty_list">There are no items matching your filters.</string>
 </resources>

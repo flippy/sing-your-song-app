@@ -1,7 +1,6 @@
 package dev.flippy.singyoursong;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,9 +29,6 @@ public class SettingsActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_back) {
-            /*Intent main_activity = new Intent(this,MainActivity.class);
-            startActivity(main_activity);
-            return true;*/
             setResult(Activity.RESULT_OK);
             finish();
             return true;

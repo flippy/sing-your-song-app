@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -87,7 +86,6 @@ public class ArtistDetailView extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position,
                                     long id) {
                 HashMap<String, String> song_info = (HashMap<String, String>) parent.getItemAtPosition(position);
-                Log.e(TAG, song_info.get("title"));
                 Intent intent = new Intent(ArtistDetailView.this, SongDetailsActivity.class);
                 intent.putExtra("song", song_info);
                 startActivity(intent);

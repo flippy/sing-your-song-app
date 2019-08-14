@@ -28,7 +28,7 @@ public class FetchSongData extends AsyncTask<Void, Void, Void> {
     private final TaskListener taskListener;
 
     // URL to get contacts JSON
-    private String url = "https://flippy.dev/sing-your-song-app/sys-songlist-firstpart.json";
+    private String url = "https://www.singyoursong.at/?d=x&i=list&m=x";
     private ProgressDialog pDialog;
     private Activity activity;
     private Context context;
@@ -59,8 +59,6 @@ public class FetchSongData extends AsyncTask<Void, Void, Void> {
 
         // Making a request to url and getting response
         String jsonStr = sh.makeServiceCall(url);
-
-        Log.e(TAG, "Response from url: " + jsonStr);
 
         if (jsonStr != null) {
             try {
