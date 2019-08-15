@@ -26,8 +26,8 @@ public class MainActivity extends AppCompatActivity {
     private String TAG = MainActivity.class.getSimpleName();
     private static SongDatabase songDatabase;
     private ViewPager viewPager;
-    private int selectedList;
-    private String searchText;
+    private int selectedList = 0;
+    private String searchText = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,24 +68,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Add the list selection.
         Spinner dropdown = findViewById(R.id.listDropdown);
-        // Load the songs.
-        Cursor listsCursor = MainActivity.getSongDatabase().getLists();
-        ArrayList<String> lists = new ArrayList<>();
-        lists.add("All Songs");
-        selectedList = 0;
-        if (listsCursor != null) {
-            try {
-                while (listsCursor.moveToNext()) {
-                    int index = listsCursor.getColumnIndexOrThrow("Title");
-                    lists.add(listsCursor.getString(index));
-                }
-            } finally {
-                listsCursor.close();
-            }
-        }
-        ArrayAdapter<String> dropdown_adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, lists);
-        dropdown.setAdapter(dropdown_adapter);
-
         dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -101,9 +83,9 @@ public class MainActivity extends AppCompatActivity {
                 // TODO Auto-generated method stub
             }
         });
+        updateListValues();
 
         // Add the list selection.
-        searchText = "";
         EditText search_box = findViewById(R.id.searchBox);
         search_box.addTextChangedListener(new TextWatcher() {
 
@@ -133,12 +115,36 @@ public class MainActivity extends AppCompatActivity {
             FetchSongData.TaskListener listener = new FetchSongData.TaskListener() {
                 @Override
                 public void onFinished() {
+                    updateListValues();
                     viewPager.getAdapter().notifyDataSetChanged();
                 }
             };
 
             new FetchSongData(this, MainActivity.this, listener).execute();
         }
+    }
+
+    /**
+     * Fill the list selection spinner with the latest set of lists.
+     */
+    private void updateListValues() {
+        Spinner dropdown = findViewById(R.id.listDropdown);
+        Cursor listsCursor = MainActivity.getSongDatabase().getLists();
+        ArrayList<String> lists = new ArrayList<>();
+        lists.add("All Songs");
+        if (listsCursor != null) {
+            try {
+                while (listsCursor.moveToNext()) {
+                    int index = listsCursor.getColumnIndexOrThrow("Title");
+                    lists.add(listsCursor.getString(index));
+                }
+            } finally {
+                listsCursor.close();
+            }
+        }
+        ArrayAdapter<String> dropdown_adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, lists);
+        dropdown.setAdapter(dropdown_adapter);
+        dropdown.setSelection(selectedList);
     }
 
     @Override
@@ -161,6 +167,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Returning back from the settings.
+        updateListValues();
         viewPager.getAdapter().notifyDataSetChanged();
     }
 
