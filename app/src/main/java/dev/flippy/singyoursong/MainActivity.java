@@ -44,6 +44,12 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.addTab(tabLayout.newTab().setText("By Artist"));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
+        // If we have a saved state then we can restore it now
+        if (savedInstanceState != null) {
+            searchText = savedInstanceState.getString("searchText", "");
+            selectedList = savedInstanceState.getInt("selectedList", 0);
+        }
+
         viewPager = (ViewPager) findViewById(R.id.pager);
         final PagerAdapter adapter = new PagerAdapter
                 (getSupportFragmentManager(), tabLayout.getTabCount());
@@ -85,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
         });
         updateListValues();
 
-        // Add the list selection.
+        // Add the text filter search.
         EditText search_box = findViewById(R.id.searchBox);
         search_box.addTextChangedListener(new TextWatcher() {
 
@@ -170,6 +176,15 @@ public class MainActivity extends AppCompatActivity {
         // Returning back from the settings.
         updateListValues();
         viewPager.getAdapter().notifyDataSetChanged();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        // Make sure to call the super method so that the states of our views are saved
+        super.onSaveInstanceState(outState);
+        // Save our own state now
+        outState.putString("searchText", searchText);
+        outState.putInt("selectedList", selectedList);
     }
 
     public static SongDatabase getSongDatabase() {
