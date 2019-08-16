@@ -79,11 +79,11 @@ public class FetchSongData extends AsyncTask<Void, Void, Void> {
                     HashMap<String, String> song = new HashMap<>();
 
                     // adding each child node to HashMap key => value
-                    song.put("id", id);
-                    song.put("title", title);
-                    song.put("artist", artist);
-                    song.put("cdtype", cdtype);
-                    song.put("list", list);
+                    song.put("id", id.trim());
+                    song.put("title", title.trim());
+                    song.put("artist", artist.trim());
+                    song.put("cdtype", cdtype.trim());
+                    song.put("list", list.trim());
 
                     songList.add(song);
                 }

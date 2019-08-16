@@ -63,16 +63,20 @@ public class TabFragment1 extends Fragment {
         }
 
         lv = (ListView) view.findViewById(R.id.list);
-        ListAdapter adapter = new SimpleAdapter(
+        ListAdapter adapter = new IndexableListAdapter(
                 activity,
                 songList,
                 R.layout.list_item_song,
                 new String[]{"title", "artist", "id", "cdType"},
-                new int[]{R.id.title, R.id.artist, R.id.id, R.id.cdType});
+                new int[]{R.id.title, R.id.artist, R.id.id, R.id.cdType},
+                "title");
         lv.setAdapter(adapter);
 
         // Add a view in case the result is empty.
         TextView emptyText = (TextView)view.findViewById(android.R.id.empty);
+        /*if (songList.size() <= 0) {
+            emptyText.setVisibility(View.VISIBLE);
+        }*/
         lv.setEmptyView(emptyText);
 
         // Update the song count.
@@ -89,6 +93,9 @@ public class TabFragment1 extends Fragment {
                 startActivity(intent);
             }
         });
+
+        SideSelector sideSelector = (SideSelector) view.findViewById(R.id.side_selector);
+        sideSelector.setListView(lv);
 
         return view;
     }

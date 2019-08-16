@@ -72,12 +72,13 @@ public class ArtistDetailView extends AppCompatActivity {
         }
 
         lv = (ListView) findViewById(R.id.list);
-        ListAdapter adapter = new SimpleAdapter(
+        ListAdapter adapter = new IndexableListAdapter(
                 this,
                 songList,
                 R.layout.list_item_artist_song,
                 new String[]{"title", "id", "cdType"},
-                new int[]{R.id.title, R.id.id, R.id.cdType});
+                new int[]{R.id.title, R.id.id, R.id.cdType},
+                "title");
 
         lv.setAdapter(adapter);
 
@@ -95,6 +96,9 @@ public class ArtistDetailView extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        SideSelector sideSelector = (SideSelector) findViewById(R.id.side_selector);
+        sideSelector.setListView(lv);
     }
 
     @Override

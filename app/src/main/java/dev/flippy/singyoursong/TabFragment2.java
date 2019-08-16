@@ -62,12 +62,13 @@ public class TabFragment2 extends Fragment {
         }
 
         lv = (ListView) view.findViewById(R.id.list);
-        ListAdapter adapter = new SimpleAdapter(
+        ListAdapter adapter = new IndexableListAdapter(
                 activity,
                 artistList,
                 R.layout.list_item_artist,
                 new String[]{"artistText", "count"},
-                new int[]{R.id.artist, R.id.count});
+                new int[]{R.id.artist, R.id.count},
+                "artist");
         lv.setAdapter(adapter);
 
         // Add a view in case the result is empty.
@@ -90,6 +91,9 @@ public class TabFragment2 extends Fragment {
                 startActivity(intent);
             }
         });
+
+        SideSelector sideSelector = (SideSelector) view.findViewById(R.id.side_selector);
+        sideSelector.setListView(lv);
 
         return view;
     }
