@@ -70,8 +70,13 @@ public class TabFragment2 extends Fragment {
                 new int[]{R.id.artist, R.id.count});
         lv.setAdapter(adapter);
 
+        // Add a view in case the result is empty.
         TextView emptyText = (TextView)view.findViewById(android.R.id.empty);
         lv.setEmptyView(emptyText);
+
+        // Update the song count.
+        TextView songCount = (TextView) view.findViewById(R.id.itemCount);
+        songCount.setText(artistList.size() + " artist" + (artistList.size() != 1 ? "s" : "") + " found");
 
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

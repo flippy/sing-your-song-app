@@ -81,6 +81,10 @@ public class ArtistDetailView extends AppCompatActivity {
 
         lv.setAdapter(adapter);
 
+        // Update the song count.
+        TextView songCount = (TextView) findViewById(R.id.itemCount);
+        songCount.setText(songList.size() + " song" + (songList.size() != 1 ? "s" : "") + " found");
+
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position,
